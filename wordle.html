@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Palabritas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .letter-input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 24px;
+            margin: 0 5px;
+            border: 2px solid #333;
+            background-color: #fff;
+            text-transform: uppercase;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .submit-button {
+            width: 60px;
+            height: 60px;
+            font-size: 18px;
+            background-color: #333;
+            color: #FFF;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+        }
+
+        .submit-button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        #attempts {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .letter-input {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>La palabrita</h1>
+    <p>Encuentra la palabra:</p>
+    <div id="attempts">Intentos restantes: 6</div>
+    
+    <div id="game-board">
+        <!-- Game board will be generated here -->
+    </div>
+
+    <script>
+        const targetWord = "ROLLA"; // Asegurarse de que la palabra objetivo esté en mayúsculas
+        let attemptsLeft = 6;
+        let currentRow = 0;
+
+        function createGameBoard() {
+            const gameBoard = document.getElementById("game-board");
+
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement("div");
+                row.className = "row";
+
+                for (let j = 0; j < 5; j++) {
+                    const input = document.createElement("input");
+                    input.className = "letter-input";
+                    input.setAttribute("maxlength", "1");
+
+                    // Agregar evento para mover el foco al siguiente campo de entrada en la misma fila
+                    input.addEventListener("input", function(event) {
+                        if (event.target.value.length === 1) {
+                            const nextInput = event.target.nextElementSibling;
+                            if (nextInput) {
+                                nextInput.focus();
+                            }
+                        }
+                    });
+
+                    // Agregar evento para borrar la letra y mover el foco al campo anterior en la misma fila
+                    input.addEventListener("keydown", function(event) {
+                        if (event.key === "Backspace" && event.target.value === "") {
+                            const prevInput = event.target.previousElementSibling;
+                            if (prevInput) {
+                                prevInput.focus();
+                            }
+                        }
+                    });
+
+                    row.appendChild(input);
+                }
+
+                const submitButton = document.createElement("i");
+                submitButton.className = "fa-regular fa-circle-check fa-shake";
+                submitButton.addEventListener("click", function(event) {
+                    if (attemptsLeft > 0) {
+                        checkGuess(event);
+                        disableRow(event);
+                    }
+                });
+                row.appendChild(submitButton);
+
+                gameBoard.appendChild(row);
+
+                // Ocultar todas las filas excepto la primera
+                if (i !== 0) {
+                    row.style.display = "none";
+                }
+            }
+        }
+
+        function enableNextRow() {
+            currentRow++;
+            const rows = document.querySelectorAll(".row");
+            if (currentRow < rows.length) {
+                rows[currentRow].style.display = "flex";
+            }
+        }
+
+        function disableRow(event) {
+            const row = event.target.parentElement;
+            const submitButton = row.querySelector(".fa-circle-check");
+            submitButton.className = "fa-solid fa-circle-xmark";
+            submitButton.style = "color: #ff4d00;"
+            submitButton.style.pointerEvents = "none"; // Deshabilitar el click en el icono
+        }
+
+        function checkGuess(event) {
+            const inputs = Array.from(event.target.parentElement.querySelectorAll(".letter-input"));
+            const guess = inputs.map(input => input.value.toUpperCase()).join(""); // Convertir a mayúsculas
+
+            if (attemptsLeft === 0) {
+                return; // Evitar validaciones si ya no hay intentos
+            }
+
+            // Validar que no haya ningún campo de entrada vacío en la línea
+            const isRowValid = inputs.every(input => input.value.length === 1);
+
+            if (!isRowValid) {
+                alert("Rellena todas las letras.");
+                return;
+            }
+
+            attemptsLeft--;
+
+            for (let i = 0; i < 5; i++) {
+                const char = guess[i];
+                if (targetWord.charAt(i) === char) {
+                    inputs[i].style.backgroundColor = "#00d900";
+                } else if (targetWord.includes(char)) {
+                    inputs[i].style.backgroundColor = "#FFD700"; // Amarillo
+                } else {
+                    inputs[i].style.backgroundColor = "rgb(230 227 227)";
+                }
+                inputs[i].disabled = "true";
+            }
+
+            if (attemptsLeft === 0) {
+                endGame("Te has quedado sin intentos. La palabra era "+targetWord+".");
+            } else if (guess.length !== 5) {
+                alert("Por favor, introduzca una palabra correcta.");
+            } else if (guess === targetWord) {
+                endGame("¡Enhorabuena! Has adivinado la palabra.");
+            } else {
+                document.getElementById("attempts").textContent = `Intentos restantes: ${attemptsLeft}`;
+                enableNextRow(); // Habilitar la siguiente fila
+            }
+        }
+
+        function endGame(message) {
+            document.getElementById("attempts").textContent = "0";
+            Array.from(document.querySelectorAll(".letter-input")).forEach(input => input.disabled = true);
+            Array.from(document.querySelectorAll(".submit-button")).forEach(button => button.disabled = true);
+            alert(message);
+        }
+
+        createGameBoard();
+    </script>
+</body>
+</html>
