@@ -13,11 +13,11 @@
         }
 
         .letter-input {
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             text-align: center;
-            font-size: 24px;
-            margin: 0 5px;
+            font-size: 32px;
+            margin: 0 10px;
             border: 2px solid #333;
             background-color: #fff;
             text-transform: uppercase;
@@ -33,9 +33,9 @@
         }
 
         .submit-button {
-            width: 60px;
-            height: 60px;
-            font-size: 18px;
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
             background-color: #333;
             color: #FFF;
             border: none;
@@ -53,16 +53,30 @@
         }
 
         #attempts {
-            font-size: 24px;
+            font-size: 32px;
             margin-top: 20px;
         }
 
         @media (max-width: 768px) {
             .letter-input {
-                width: 30px;
-                height: 30px;
-                font-size: 16px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                margin: 0 5px;
             }
+
+            .submit-button {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+            }
+        }
+
+        i {
+            width: 50px;
+            height: 50px;
+            font-size: 50px;
+            margin-left: 20px;
         }
     </style>
 </head>
@@ -76,7 +90,7 @@
     </div>
 
     <script>
-        const targetWord = "ROLLA"; // Asegurarse de que la palabra objetivo esté en mayúsculas
+        const targetWord = "GORRINA"; // Asegurarse de que la palabra objetivo esté en mayúsculas
         let attemptsLeft = 6;
         let currentRow = 0;
 
@@ -87,7 +101,7 @@
                 const row = document.createElement("div");
                 row.className = "row";
 
-                for (let j = 0; j < 5; j++) {
+                for (let j = 0; j < 7; j++) {
                     const input = document.createElement("input");
                     input.className = "letter-input";
                     input.setAttribute("maxlength", "1");
@@ -168,7 +182,7 @@
 
             attemptsLeft--;
 
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 7; i++) {
                 const char = guess[i];
                 if (targetWord.charAt(i) === char) {
                     inputs[i].style.backgroundColor = "#00d900";
@@ -182,7 +196,7 @@
 
             if (attemptsLeft === 0) {
                 endGame("Te has quedado sin intentos. La palabra era "+targetWord+".");
-            } else if (guess.length !== 5) {
+            } else if (guess.length !== 7) {
                 alert("Por favor, introduzca una palabra correcta.");
             } else if (guess === targetWord) {
                 endGame("¡Enhorabuena! Has adivinado la palabra.");
